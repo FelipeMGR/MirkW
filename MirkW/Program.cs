@@ -19,8 +19,19 @@ namespace MirkW
                 }
 
                 var lexer = new Lexer(line);
+
                 while(true) {
                     var token = lexer.NextToken();
+
+                    if (token.Kind == SyntaxKind.EndOfFileToken)
+                        break;
+                    Console.Write($"{token.Kind}: {token.Text}");
+                    if(token.Value is not null)
+                    {
+                        Console.WriteLine($"{token.Value}");
+                    }
+                    Console.WriteLine();
+                    
                 }
             }
         }
@@ -96,7 +107,7 @@ namespace MirkW
                 {
                     Next();
 
-                    var lenght = start - _position;
+                    var lenght = _position - start;
                     var text = _text.Substring(start, lenght);
                     int.TryParse(text, out var value);
                     return new SyntaxToken(SyntaxKind.NumberToken, start, text, value);
@@ -113,8 +124,7 @@ namespace MirkW
 
                     var lenght = start - _position;
                     var text = _text.Substring(start, lenght);
-                    int.TryParse(text, out var value);
-                    return new SyntaxToken(SyntaxKind.WhiteSpaceToken, start, text, value);
+                    return new SyntaxToken(SyntaxKind.WhiteSpaceToken, start, text, null);
                 }
             }
 
@@ -143,7 +153,12 @@ namespace MirkW
                 return new SyntaxToken(SyntaxKind.CloseParentesisToken, _position++, ")", null);
             }
 
-            return new SyntaxToken(SyntaxKind.BadToken, _position++, _text.Substring(_position -1, 1), null);
+            if (_position >= _text.Length)
+            {
+                return new SyntaxToken(SyntaxKind.EndOfFileToken, _position, string.Empty, null);
+            }
+
+            return new SyntaxToken(SyntaxKind.BadToken, _position++, _text.Substring(_position - 1, 1), null);
         }
     }
 }
