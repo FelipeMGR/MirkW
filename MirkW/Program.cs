@@ -161,4 +161,42 @@ namespace MirkW
             return new SyntaxToken(SyntaxKind.BadToken, _position++, _text.Substring(_position - 1, 1), null);
         }
     }
+
+    class Parser
+    {
+        private readonly SyntaxToken[] _tokens;
+        private int _position;
+
+        public Parser(string text)
+        {
+            var tokens = new List<SyntaxToken>();
+            var lexer = new Lexer(text);
+
+            SyntaxToken token;
+
+            do
+            {
+                token = lexer.NextToken();
+                if (token.Kind != SyntaxKind.BadToken && token.Kind != SyntaxKind.WhiteSpaceToken)
+                {
+                    tokens.Add(token);
+                }
+            } while (token.Kind != SyntaxKind.EndOfFileToken); 
+
+            _tokens = tokens.ToArray();
+        }
+
+        public SyntaxToken Peek(int offset)
+        {
+            var index = _position + offset;
+
+            if (index >= _tokens.Length)
+            {
+                return _tokens[_position - 1];
+            }
+            return _tokens[index];
+        }
+
+        private SyntaxToken Current => Peek(0);
+    }
 }
